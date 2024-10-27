@@ -55,6 +55,23 @@ namespace Gridable
             }
         }
 
+        public Vector3 GetNodePos(int x, int y, int z)
+        {
+            //Used to get a node from a grid,
+            //If it's greater than all the maximum values we have
+            //then it's going to return null
+
+            if (x >= maxX) x = maxX - 1;
+            if (y >= maxY) y = maxY - 1;
+            if (z >= maxZ) z = maxZ - 1;
+
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (z < 0) z = 0;
+
+            return grid[x, y, z].Pos;
+        }
+
         public Node GetNode(int x, int y, int z)
         {
             //Used to get a node from a grid,
@@ -69,8 +86,7 @@ namespace Gridable
             if (y < 0) y = 0;
             if (z < 0) z = 0;
 
-            Node node = grid[x, y, z];
-            return node;
+            return grid[x, y, z];
         }
 
         public Node GetNode(Vector3 pos)
@@ -79,8 +95,7 @@ namespace Gridable
             int y = Mathf.RoundToInt(pos.y);
             int z = Mathf.RoundToInt(pos.z);
 
-            Node retVal = GetNode(x, y, z);
-            return retVal;
+            return GetNode(x, y, z);
         }
     }
 }

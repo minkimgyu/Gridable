@@ -1122,7 +1122,7 @@ MonoBehaviour:
   - {fileID: 653654993}
   - {fileID: 2029203245}
   - {fileID: 335758458}
-  _spawnCount: 2000
+  _spawnCount: 1000
 --- !u!1001 &281045858
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1803,6 +1803,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420fcf75c3c6d8a49b485b285db6b743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxRequestCount: 30
   grid: {fileID: 450304991}
 --- !u!1001 &462516038
 PrefabInstance:

@@ -8,6 +8,9 @@ namespace Gridable
 {
     public class PathRequestManager : MonoBehaviour
     {
+        [SerializeField] int maxRequestCount = 30;
+
+
         Queue<PathResult> results = new Queue<PathResult>();
 
         static PathRequestManager instance;
@@ -37,6 +40,7 @@ namespace Gridable
 
         public void RequestPath(PathRequest request)
         {
+            //if (results.Count > maxRequestCount) return;
             ThreadPool.QueueUserWorkItem((obj) => { pathfinder.FindPath(request, FinishedProcessingPath); });
         }
 

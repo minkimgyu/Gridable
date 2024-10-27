@@ -99,7 +99,7 @@ namespace Gridable
                 path.Add(currentNodePos); //by taking the parentNodes we assigned
 
                 currentNodeIndex = traceSet[currentNodeIndex];
-                currentNodePos = grid.GetNode(currentNodeIndex).Pos;
+                currentNodePos = grid.GetNodePos(currentNodeIndex.x, currentNodeIndex.y, currentNodeIndex.z);
             }
 
             //then we simply reverse the list

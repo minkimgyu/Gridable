@@ -1211,7 +1211,7 @@ MonoBehaviour:
   - {fileID: 653654993}
   - {fileID: 2029203245}
   - {fileID: 335758458}
-  _spawnCount: 2000
+  _spawnCount: 1000
   _gridComponent: {fileID: 199987703}
   _pathfinder: {fileID: 199987701}
 --- !u!1001 &281045858
