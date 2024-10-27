@@ -5,7 +5,7 @@ using UnityEditor.Experimental.GraphView;
 
 namespace GridMaster
 {
-    public class GridBase : MonoBehaviour
+    public class Grid : MonoBehaviour
     {
         //Setting up the grid
         public int maxX = 10;
@@ -68,6 +68,7 @@ namespace GridMaster
                 }
             }
         }
+
 
         public void RequestPathfind(Vector3 start, Vector3 end, PathfindMaster.PathfindingJobComplete ShowPath)
         {
@@ -137,8 +138,8 @@ namespace GridMaster
         }
 
         //Singleton
-        public static GridBase instance;
-        public static GridBase GetInstance()
+        public static Grid instance;
+        public static Grid GetInstance()
         {
             return instance;
         }

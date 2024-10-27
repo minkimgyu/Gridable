@@ -152,3 +152,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d836b4344c92fc14b881b7af0142f26c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _onReadyMaterial: {fileID: 2100000, guid: 4058cba9922d50f4789973526860c5ef, type: 2}
+  _onLoadMaterial: {fileID: 2100000, guid: c32207088c92b8b4195cadc7ffe94dc4, type: 2}

@@ -9,7 +9,7 @@ namespace GridMaster
 {
     public class Pathfinder
     {
-        GridBase gridBase;
+        Grid gridBase;
         public Node startPosition;
         public Node endPosition;
 
@@ -23,13 +23,12 @@ namespace GridMaster
             startPosition = start;
             endPosition = target;
             completeCallback = callback;
-            gridBase = GridBase.GetInstance();
+            gridBase = Grid.GetInstance();
         }
 
         public void FindPath()
-        {         
+        {
             foundPath = FindPathActual(startPosition, endPosition);
-
             jobDone = true;
         }
 
@@ -47,34 +46,35 @@ namespace GridMaster
             List<Vector3> foundPath = new List<Vector3>();
 
             //We need two lists, one for the nodes we need to check and one for the nodes we've already checked
-            List<Node> openSet = new List<Node>();
+            Heap<Node> openSet = new Heap<Node>(1000);
             HashSet<Node> closedSet = new HashSet<Node>();
 
             //We start adding to the open set
-            openSet.Add(start);
+            openSet.Insert(start);
 
             while (openSet.Count > 0)
             {
-                Node currentNode = openSet[0];
+                Node currentNode = openSet.ReturnMin();
 
-                for (int i = 0; i < openSet.Count; i++)
-                {
-                    //We check the costs for the current node
-                    //You can have more opt. here but that's not important now
-                    if (openSet[i].fCost < currentNode.fCost ||
-                        (openSet[i].fCost == currentNode.fCost &&
-                        openSet[i].hCost < currentNode.hCost))
-                    {
-                        //and then we assign a new current node
-                        if (!currentNode.Equals(openSet[i]))
-                        {
-                            currentNode = openSet[i];
-                        }
-                    }
-                }
+                // 가중치가 가장 작은 노드를 찾는 코드임
+                //for (int i = 0; i < openSet.Count; i++)
+                //{
+                //    //We check the costs for the current node
+                //    //You can have more opt. here but that's not important now
+                //    if (openSet[i].fCost < currentNode.fCost ||
+                //        (openSet[i].fCost == currentNode.fCost &&
+                //        openSet[i].hCost < currentNode.hCost))
+                //    {
+                //        //and then we assign a new current node
+                //        if (!currentNode.Equals(openSet[i]))
+                //        {
+                //            currentNode = openSet[i];
+                //        }
+                //    }
+                //}
 
                 //we remove the current node from the open set and add to the closed set
-                openSet.Remove(currentNode);
+                openSet.DeleteMin();
                 closedSet.Add(currentNode);
 
                 //if the current node is the target node
@@ -94,17 +94,20 @@ namespace GridMaster
                         float newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
 
                         //and if it's lower than the neighbour's cost
-                        if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                        if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contain(neighbour))
                         {
-                            //we calculate the new costs
-                            neighbour.gCost = newMovementCostToNeighbour;
-                            neighbour.hCost = GetDistance(neighbour, target);
-                            //Assign the parent node
-                            neighbour.parentNode = currentNode;
+                            ////we calculate the new costs
+                            //neighbour.gCost = newMovementCostToNeighbour;
+                            //neighbour.hCost = GetDistance(neighbour, target);
+                            ////Assign the parent node
+                            //neighbour.parentNode = currentNode;
                             //And add the neighbour node to the open set
-                            if (!openSet.Contains(neighbour))
+
+                            neighbour.ResetValues(GetDistance(neighbour, target), newMovementCostToNeighbour, currentNode);
+
+                            if (!openSet.Contain(neighbour))
                             {
-                                openSet.Add(neighbour);
+                                openSet.Insert(neighbour);
                             }
                         }
                     }
@@ -180,11 +183,8 @@ namespace GridMaster
         private Node GetNode(int x, int y, int z)
         {
             Node n = null;
+            n = gridBase.GetNode(x, y, z);
 
-            lock(gridBase)
-            {
-                n = gridBase.GetNode(x, y, z);
-            }
             return n;
         }
 
@@ -193,30 +193,16 @@ namespace GridMaster
             //We find the distance between each node
             //not much to explain here
 
-            try
+            int distX = Mathf.Abs(posA.x - posB.x);
+            int distZ = Mathf.Abs(posA.z - posB.z);
+            int distY = Mathf.Abs(posA.y - posB.y);
+
+            if (distX > distZ)
             {
-                int distX = Mathf.Abs(posA.x - posB.x);
-                int distZ = Mathf.Abs(posA.z - posB.z);
-                int distY = Mathf.Abs(posA.y - posB.y);
-
-                if (distX > distZ)
-                {
-                    return 14 * distZ + 10 * (distX - distZ) + 10 * distY;
-                }
-
-                return 14 * distX + 10 * (distZ - distX) + 10 * distY;
-            }
-            catch (System.Exception e)
-            {
-                Debug.Log(posA);
-                Debug.Log(posB);
-
-                Debug.Log(e);
-                throw;
+                return 14 * distZ + 10 * (distX - distZ) + 10 * distY;
             }
 
-            
+            return 14 * distX + 10 * (distZ - distX) + 10 * distY;
         }
-
     }
 }

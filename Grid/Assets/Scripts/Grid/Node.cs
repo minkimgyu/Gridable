@@ -59,13 +59,21 @@ namespace Pathfinding
         public float F { get { return g + h; } }
 
         public Node ParentNode { get; set; }
-        public int StoredIndex { get; set; }
+        public int _index;
 
+        public int GetIndex()
+        {
+            return _index;
+        }
 
+        public void ResetIndex(int index)
+        {
+            _index = index;
+        }
 
         public void Dispose()
         {
-            StoredIndex = -1;
+            _index = -1;
             ParentNode = null;
         }
 

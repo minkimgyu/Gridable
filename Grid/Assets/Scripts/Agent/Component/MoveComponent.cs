@@ -66,7 +66,7 @@ public class MoveComponent : MonoBehaviour
             _pathIndex = 0;
 
             _pathFindTimer.Reset();
-            _pathFindTimer.Start(_findDelay);
+            _pathFindTimer.Start(UnityEngine.Random.Range(0, _findDelay));
         }
 
         if (_path == null || _pathIndex >= _path.Count - 1)

@@ -1122,7 +1122,7 @@ MonoBehaviour:
   - {fileID: 653654993}
   - {fileID: 2029203245}
   - {fileID: 335758458}
-  _spawnCount: 100
+  _spawnCount: 30
 --- !u!1001 &281045858
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1808,6 +1808,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxJobs: 14
+  todoCount: 0
+  currentCount: 0
 --- !u!1001 &462516038
 PrefabInstance:
   m_ObjectHideFlags: 0

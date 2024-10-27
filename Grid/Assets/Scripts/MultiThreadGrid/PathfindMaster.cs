@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System;
 
 namespace GridMaster
 {
@@ -28,6 +29,9 @@ namespace GridMaster
         private List<Pathfinder> currentJobs;
         private List<Pathfinder> todoJobs;
 
+        [SerializeField] int todoCount;
+        [SerializeField] int currentCount;
+
         void Start()
         {
             currentJobs = new List<Pathfinder>();
@@ -53,6 +57,7 @@ namespace GridMaster
                 {
                     currentJobs[i].NotifyComplete();
                     currentJobs.RemoveAt(i);
+                    currentCount--;
                 }
                 else
                 {
@@ -60,15 +65,17 @@ namespace GridMaster
                 }
             }
 
-            if(todoJobs.Count > 0 && currentJobs.Count < MaxJobs)
+            if(todoJobs.Count > 0 && currentJobs.Count < MaxJobs) // 사실상 프레임당 하나씩만 실행된다.
             {
                 Pathfinder job = todoJobs[0];
                 todoJobs.RemoveAt(0);
                 currentJobs.Add(job);
+                todoCount--;
 
                 //Start a new thread
 
                 ThreadPool.QueueUserWorkItem((obj) => { job.FindPath(); });
+                currentCount++;
 
                 //Thread jobThread = new Thread(job.FindPath);
                 //jobThread.Start();
@@ -80,10 +87,16 @@ namespace GridMaster
             }
         }
 
+        //readonly object lockPathfind = new object();
+
         public void RequestPathfind(Node start, Node target, PathfindingJobComplete completeCallback)
         {
-            Pathfinder newJob = new Pathfinder(start, target, completeCallback);
-            todoJobs.Add(newJob);
+            //lock (lockPathfind)
+            //{
+                Pathfinder newJob = new Pathfinder(start, target, completeCallback);
+                todoJobs.Add(newJob);
+                todoCount++;
+            //}
         }
     }
 }
