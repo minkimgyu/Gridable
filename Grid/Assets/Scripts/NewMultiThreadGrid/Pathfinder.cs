@@ -10,10 +10,10 @@ namespace Gridable
 {
     public class Pathfinder
     {
-        Grid grid;
+        GridComponent grid;
 
         //Constructor
-        public Pathfinder(Grid grid)
+        public Pathfinder(GridComponent grid)
         {
             this.grid = grid;
         }

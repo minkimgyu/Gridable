@@ -13,6 +13,7 @@ public class Agent : MonoBehaviour
 
     const float _endDistance = 3f;
     float _moveSpeed = 5f;
+    [SerializeField] int safeRange = 150;
 
     Vector3 _endPos;
 
@@ -52,7 +53,7 @@ public class Agent : MonoBehaviour
         _endPos = endPos;
         TeleportTo(randomPos);
 
-        PathRequestManager.Instance.RequestPath(new PathRequest(randomPos, _endPos, (points, canFind) => { _path = points; _pathIndex = 1; }));
+        PathRequestManager.Instance.RequestPath(new PathRequest(randomPos, _endPos, safeRange, (points, canFind) => { _path = points; _pathIndex = 1; }));
     }
 
 

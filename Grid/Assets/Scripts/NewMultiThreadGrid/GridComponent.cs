@@ -5,7 +5,7 @@ using UnityEditor.Experimental.GraphView;
 
 namespace Gridable
 {
-    public class Grid : MonoBehaviour
+    public class GridComponent : MonoBehaviour
     {
         [SerializeField] bool canDraw;
         [SerializeField] Color nodeColor;

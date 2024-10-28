@@ -8,21 +8,23 @@ namespace Gridable
 {
     public class PathRequestManager : MonoBehaviour
     {
-        [SerializeField] int maxRequestCount = 30;
-
+        [SerializeField] int requestCount = 0;
+        [SerializeField] int maxThreadCount = 20;
 
         Queue<PathResult> results = new Queue<PathResult>();
 
         static PathRequestManager instance;
         public static PathRequestManager Instance { get { return instance; } }
 
-        [SerializeField] Grid grid;
+        [SerializeField] GridComponent grid;
         Pathfinder pathfinder;
 
         void Awake()
         {
             instance = this;
             pathfinder = new Pathfinder(grid);
+            ThreadPool.SetMinThreads(1, 1);
+            ThreadPool.SetMaxThreads(maxThreadCount, maxThreadCount);
         }
 
         void Update()
@@ -40,7 +42,7 @@ namespace Gridable
 
         public void RequestPath(PathRequest request)
         {
-            //if (results.Count > maxRequestCount) return;
+            requestCount++;
             ThreadPool.QueueUserWorkItem((obj) => { pathfinder.FindPath(request, FinishedProcessingPath); });
         }
 
@@ -48,6 +50,7 @@ namespace Gridable
         {
             lock (results)
             {
+                requestCount--;
                 results.Enqueue(result);
             }
         }
@@ -72,12 +75,14 @@ namespace Gridable
     {
         public Vector3 start;
         public Vector3 end;
+        public int safeRange;
         public Action<List<Vector3>, bool> callback;
 
-        public PathRequest(Vector3 start, Vector3 end, Action<List<Vector3>, bool> callback)
+        public PathRequest(Vector3 start, Vector3 end, int safeRange, Action<List<Vector3>, bool> callback)
         {
             this.start = start;
             this.end = end;
+            this.safeRange = safeRange;
             this.callback = callback;
         }
     }
