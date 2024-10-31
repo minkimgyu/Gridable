@@ -19,6 +19,8 @@ namespace MultiThreadPathfinding
 
         Vector3 _endPos;
 
+        bool _canMove = false;
+
         Pathfinder _pathfinder;
 
         Func<Vector3> ReturnRandomStartPos;
@@ -56,6 +58,8 @@ namespace MultiThreadPathfinding
 
             _endPos = endPos;
             TeleportTo(randomPos);
+
+            _canMove = false;
             FindPath(randomPos);
         }
 
@@ -64,8 +68,10 @@ namespace MultiThreadPathfinding
             PathRequest request = new PathRequest(startPos, _endPos, _safeRange);
             _pathResult = await Task<PathResult>.Run(() => 
             { 
-                _pathIndex = 0; 
-                return _pathfinder.FindPath(request); 
+                PathResult result = _pathfinder.FindPath(request);
+                _pathIndex = 0;
+                _canMove = true;
+                return result;
             });
 
             //_pathResult = _pathfinder.FindPath();
@@ -75,6 +81,8 @@ namespace MultiThreadPathfinding
 
         private void Update()
         {
+            if (_canMove == false) return;
+
             if (Vector3.Distance(transform.position, _endPos) <= _endDistance)
             {
                 FinishPath();
