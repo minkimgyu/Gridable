@@ -15,10 +15,12 @@ namespace MultiThreadPathfinding
         [SerializeField] Transform[] _endPoints;
 
         [SerializeField] GridComponent _gridComponent;
-        [SerializeField] PathRequestManager _pathRequestManager;
+        //[SerializeField] PathRequestManager _pathRequestManager;
 
         [SerializeField] Button _exitBtn;
         [SerializeField] TMP_Text _spawnCountTxt;
+
+        Pathfinder _pathfinder;
 
         private void Start()
         {
@@ -28,12 +30,14 @@ namespace MultiThreadPathfinding
             _spawnCountTxt.text = $"{spawnCount} Count";
 
             _gridComponent.Initialize();
-            _pathRequestManager.Initialize(_gridComponent);
+            //_pathRequestManager.Initialize(_gridComponent);
+
+            _pathfinder = new Pathfinder(_gridComponent);
 
             for (int i = 0; i < spawnCount; i++)
             {
                 Agent unit = Instantiate(_agentPrefab);
-                unit.Initialize(ReturnRandomStartPos, ReturnRandomEndPos);
+                unit.Initialize(_pathfinder, ReturnRandomStartPos, ReturnRandomEndPos);
             }
         }
 

@@ -19,6 +19,7 @@ namespace SingleThreadPathfinding
 
         [SerializeField] Button _exitBtn;
         [SerializeField] TMP_Text _spawnCountTxt;
+
         private void Start()
         {
             _exitBtn.onClick.AddListener(() => { SceneManager.LoadScene("StartScene"); });

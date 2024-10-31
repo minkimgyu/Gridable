@@ -2,13 +2,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using System.Reflection;
+using System.Threading.Tasks;
 using SingleThreadPathfinding;
 
-//for more on A* visit
-//https://en.wikipedia.org/wiki/A*_search_algorithm
 namespace MultiThreadPathfinding
 {
+    public struct PathResult
+    {
+        public List<Vector3> path;
+        public bool success;
+
+        public PathResult(List<Vector3> path, bool success)
+        {
+            this.path = path;
+            this.success = success;
+        }
+
+    }
+
+    public struct PathRequest
+    {
+        public Vector3 start;
+        public Vector3 end;
+        public int safeRange;
+
+        public PathRequest(Vector3 start, Vector3 end, int safeRange)
+        {
+            this.start = start;
+            this.end = end;
+            this.safeRange = safeRange;
+        }
+    }
+
     public class Pathfinder
     {
         GridComponent _gridComponent;
@@ -19,7 +44,7 @@ namespace MultiThreadPathfinding
             _gridComponent = grid;
         }
 
-        public void FindPath(PathRequest request, Action<PathResult> callback)
+        public PathResult FindPath(PathRequest request)
         {
             bool canFind = false;
             //Typical A* algorythm from here and on
@@ -84,9 +109,12 @@ namespace MultiThreadPathfinding
                     }
                 }
             }
+
             
-            PathResult result = new PathResult(foundPath, canFind, request.callback);
-            callback?.Invoke(result);
+            PathResult result = new PathResult(foundPath, canFind);
+            //callback?.Invoke(result);
+
+            return result;
         }
 
         private List<Vector3> RetracePath(Node startNode, Node endNode, Dictionary<Vector3Int, Vector3Int> traceSet)

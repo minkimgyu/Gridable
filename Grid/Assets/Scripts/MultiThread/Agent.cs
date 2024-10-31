@@ -1,27 +1,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MultiThreadPathfinding
 {
     public class Agent : MonoBehaviour
     {
-        List<Vector3> _path;
+        PathResult _pathResult;
+        //List<Vector3> _path;
         int _pathIndex = 0;
         const float _reachDistance = 0.5f;
 
         const float _endDistance = 3f;
         float _moveSpeed = 5f;
-        [SerializeField] int safeRange = 150;
+        [SerializeField] int _safeRange = 150;
 
         Vector3 _endPos;
+
+        Pathfinder _pathfinder;
 
         Func<Vector3> ReturnRandomStartPos;
         Func<Vector3> ReturnRandomEndPos;
 
-        public void Initialize(Func<Vector3> ReturnRandomStartPos, Func<Vector3> ReturnRandomEndPos)
+        public void Initialize(Pathfinder pathfinder, Func<Vector3> ReturnRandomStartPos, Func<Vector3> ReturnRandomEndPos)
         {
+            _pathfinder = pathfinder;
             this.ReturnRandomStartPos = ReturnRandomStartPos;
             this.ReturnRandomEndPos = ReturnRandomEndPos;
 
@@ -40,7 +45,6 @@ namespace MultiThreadPathfinding
 
         void FinishPath()
         {
-            _path = null;
             Vector3 randomPos = ReturnRandomStartPos();
             Vector3 endPos;
 
@@ -52,8 +56,20 @@ namespace MultiThreadPathfinding
 
             _endPos = endPos;
             TeleportTo(randomPos);
+            FindPath(randomPos);
+        }
 
-            PathRequestManager.Instance.RequestPath(new PathRequest(randomPos, _endPos, safeRange, (points, canFind) => { _path = points; _pathIndex = 1; }));
+        async void FindPath(Vector3 startPos)
+        {
+            PathRequest request = new PathRequest(startPos, _endPos, _safeRange);
+            _pathResult = await Task<PathResult>.Run(() => 
+            { 
+                _pathIndex = 0; 
+                return _pathfinder.FindPath(request); 
+            });
+
+            //_pathResult = _pathfinder.FindPath();
+            //_pathResult = await _pathfinder.FindPath(new PathRequest(startPos, _endPos, safeRange));
         }
 
 
@@ -64,13 +80,13 @@ namespace MultiThreadPathfinding
                 FinishPath();
             }
 
-            if (_path == null || _pathIndex >= _path.Count - 1) return;
+            if (_pathResult.path == null || _pathIndex >= _pathResult.path.Count - 1) return;
             // 경로가 없거나 경로 끝에 도달한 경우 진행하지 않음
 
-            float distance = Vector3.Distance(transform.position, _path[_pathIndex]);
+            float distance = Vector3.Distance(transform.position, _pathResult.path[_pathIndex]);
             if (distance < _reachDistance) _pathIndex++;
 
-            transform.position = Vector3.MoveTowards(transform.position, _path[_pathIndex], Time.deltaTime * _moveSpeed);
+            transform.position = Vector3.MoveTowards(transform.position, _pathResult.path[_pathIndex], Time.deltaTime * _moveSpeed);
         }
 
         private void OnDrawGizmos()
@@ -78,12 +94,12 @@ namespace MultiThreadPathfinding
             Gizmos.color = Color.yellow;
             Gizmos.DrawCube(_endPos, Vector3.one);
 
-            if (_path == null) return;
+            if (_pathResult.path == null) return;
 
-            for (int i = 1; i < _path.Count; i++)
+            for (int i = 1; i < _pathResult.path.Count; i++)
             {
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(_path[i - 1], _path[i]);
+                Gizmos.DrawLine(_pathResult.path[i - 1], _pathResult.path[i]);
             }
         }
     }
