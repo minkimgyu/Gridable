@@ -78,10 +78,9 @@ namespace MultiThreadPathfinding
             //_pathResult = await _pathfinder.FindPath(new PathRequest(startPos, _endPos, safeRange));
         }
 
-
         private void Update()
         {
-            if (_canMove == false) return;
+            if (_canMove == false) return; // Task가 완료되지 않으면 작동하지 않는다.
 
             if (Vector3.Distance(transform.position, _endPos) <= _endDistance)
             {
