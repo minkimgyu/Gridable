@@ -66,13 +66,16 @@ namespace MultiThreadPathfinding
         async void FindPath(Vector3 startPos)
         {
             PathRequest request = new PathRequest(startPos, _endPos, _safeRange);
+
+            // 길찾기 Task 진행
             _pathResult = await Task<PathResult>.Run(() => 
-            { 
-                PathResult result = _pathfinder.FindPath(request);
-                _pathIndex = 0;
-                _canMove = true;
-                return result;
+            {
+                return _pathfinder.FindPath(request);
             });
+
+            // 이후 메인 스레드에서 작업 진행
+            _pathIndex = 0;
+            _canMove = true;
 
             //_pathResult = _pathfinder.FindPath();
             //_pathResult = await _pathfinder.FindPath(new PathRequest(startPos, _endPos, safeRange));
@@ -80,7 +83,7 @@ namespace MultiThreadPathfinding
 
         private void Update()
         {
-            if (_canMove == false) return; // Task가 완료되지 않으면 작동하지 않는다.
+            if (_canMove == false) return; // 앞선 Task가 완료되지 않으면 작동하지 않는다.
 
             if (Vector3.Distance(transform.position, _endPos) <= _endDistance)
             {
