@@ -12,6 +12,7 @@ public class StartController : MonoBehaviour
     [SerializeField] Button _navmeshThread;
     [SerializeField] Button _singleThread;
     [SerializeField] Button _multiThread;
+    [SerializeField] Button _flowField;
     [SerializeField] TMP_InputField _spawnCountInput;
 
     public void Quit()
@@ -29,9 +30,10 @@ public class StartController : MonoBehaviour
         int spawnCount = PlayerPrefs.GetInt("SpawnCount", 100);
         _spawnCountInput.text = spawnCount.ToString();
 
+        _navmeshThread.onClick.AddListener(() => { LoadScene("NavMesh"); });
         _singleThread.onClick.AddListener(() => { LoadScene("SingleThread"); });
         _multiThread.onClick.AddListener(() => { LoadScene("MultiThread"); });
-        _navmeshThread.onClick.AddListener(() => { LoadScene("NavMesh"); });
+        _flowField.onClick.AddListener(() => { LoadScene("FlowField"); });
 
         _exitBtn.onClick.AddListener(() => { Quit(); });
     }

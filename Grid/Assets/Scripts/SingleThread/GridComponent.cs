@@ -313,7 +313,9 @@ namespace SingleThreadPathfinding
 
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             DrawGrid();
+#endif
         }
     }
 }

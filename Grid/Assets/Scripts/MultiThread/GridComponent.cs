@@ -306,7 +306,9 @@ namespace MultiThreadPathfinding
 
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             DrawGrid();
+#endif
         }
     }
 }

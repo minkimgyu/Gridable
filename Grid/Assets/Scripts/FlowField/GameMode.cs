@@ -28,6 +28,7 @@ namespace FlowFieldPathfinding
             _spawnCountTxt.text = $"{spawnCount} Count";
 
             _gridComponent.Initialize();
+            _pathfinder.FindPath(_endPoints[0].position);
 
             for (int i = 0; i < spawnCount; i++)
             {

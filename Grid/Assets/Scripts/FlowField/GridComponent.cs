@@ -52,17 +52,40 @@ namespace FlowFieldPathfinding
 
         public Dictionary<Vector3, Direction> directions = new Dictionary<Vector3, Direction>()
         {
-            { new Vector3(-1, 0, 1).normalized, Direction.UpLeft },
+            { new Vector3(-1, 0, 1), Direction.UpLeft },
+            { new Vector3(-1, 1, 1), Direction.UpLeft },
+            { new Vector3(-1, -1, 1), Direction.UpLeft },
+
             { new Vector3(0, 0, 1), Direction.Up },
-            { new Vector3(1, 0, 1).normalized, Direction.UpRight },
+            { new Vector3(0, 1, 1), Direction.Up },
+            { new Vector3(0, -1, 1), Direction.Up },
 
-            { new Vector3(-1, 0), Direction.Left },
-            { new Vector3(0, 0), Direction.Current },
-            { new Vector3(1, 0), Direction.Right },
+            { new Vector3(1, 0, 1), Direction.UpRight },
+            { new Vector3(1, 1, 1), Direction.UpRight },
+            { new Vector3(1, -1, 1), Direction.UpRight },
 
-            { new Vector3(-1, -1).normalized, Direction.DownLeft },
-            { new Vector3(0, -1), Direction.Down },
-            { new Vector3(1, -1).normalized, Direction.DownRight },
+            { new Vector3(-1, 0, 0), Direction.Left },
+            { new Vector3(-1, 1, 0), Direction.Left },
+            { new Vector3(-1, -1, 0), Direction.Left },
+
+
+            { new Vector3(1, 0, 0), Direction.Right },
+            { new Vector3(1, -1, 0), Direction.Right },
+            { new Vector3(1, 1, 0), Direction.Right },
+
+            { new Vector3(0, 0, 0), Direction.Current },
+
+            { new Vector3(-1, 0, -1), Direction.DownLeft },
+            { new Vector3(-1, -1, -1), Direction.DownLeft },
+            { new Vector3(-1, 1, -1), Direction.DownLeft },
+
+            { new Vector3(0, 0, -1), Direction.Down },
+            { new Vector3(0, 1, -1), Direction.Down },
+            { new Vector3(0, -1, -1), Direction.Down },
+
+            { new Vector3(1, 0, -1), Direction.DownRight },
+            { new Vector3(1, -1, -1), Direction.DownRight },
+            { new Vector3(1, 1, -1), Direction.DownRight },
         };
 
         public enum ShowType
@@ -113,7 +136,7 @@ namespace FlowFieldPathfinding
             _groundPathfinder.Initialize(this);
         }
 
-        public Vector2 ReturnNodeDirection(Vector3 worldPos)
+        public Vector3 ReturnNodeDirection(Vector3 worldPos)
         {
             Vector3Int index = ReturnNodeIndex(worldPos);
             Node node = ReturnNode(index);
@@ -124,31 +147,31 @@ namespace FlowFieldPathfinding
         {
             for (int i = 0; i < _sizeOfGrid.x; i++)
             {
-                for (int j = 0; j < _sizeOfGrid.y; j++)
+                for (int k = 0; k < _sizeOfGrid.z; k++)
                 {
-                    for (int k = 0; k < _sizeOfGrid.y; k++)
+                    for (int j = 0; j < _sizeOfGrid.y; j++)
                     {
                         if (startNode == _grid[i, j, k])
                         {
-                            startNode.DirectionToMove = Vector2.zero;
+                            startNode.DirectionToMove = Vector3.zero;
                             continue;
                         }
 
-                        Vector2 direction;
-                        List<Node> nearNodes = _grid[i, j, k].NearNodes;
+                        List<Node> nearNodes = _grid[i, j, k].NearNodesInGround;
+                        if (nearNodes.Count == 0) continue;
+
                         float minWeight = float.MaxValue;
                         int minIndex = 0;
-
                         for (int z = 0; z < nearNodes.Count; z++)
                         {
-                            if (nearNodes[k].PathWeight < minWeight)
+                            if (nearNodes[z].PathWeight < minWeight)
                             {
-                                minWeight = nearNodes[k].PathWeight;
-                                minIndex = k;
+                                minWeight = nearNodes[z].PathWeight;
+                                minIndex = z;
                             }
                         }
 
-                        direction = (nearNodes[minIndex].Pos - _grid[i, j, k].Pos).normalized;
+                        Vector3 direction = (nearNodes[minIndex].Pos - _grid[i, j, k].Pos).normalized;
                         _grid[i, j, k].DirectionToMove = direction;
                     }
                 }
@@ -431,7 +454,10 @@ namespace FlowFieldPathfinding
 
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             DrawGrid();
+
+            if (_grid == null) return;
 
             for (int i = 0; i < _sizeOfGrid.x; i++)
             {
@@ -439,6 +465,8 @@ namespace FlowFieldPathfinding
                 {
                     for (int k = 0; k < _sizeOfGrid.z; k++)
                     {
+                        if (_grid[i, j, k].CanStep == false) continue;
+
                         if (_showType == ShowType.Direction)
                         {
                             if (_grid[i, j, k].CanStep == false)
@@ -447,6 +475,9 @@ namespace FlowFieldPathfinding
                             }
                             else
                             {
+                                bool containDirection = directions.ContainsKey(_grid[i, j, k].DirectionToMove);
+                                if (containDirection == false) continue;
+
                                 Direction direction = directions[_grid[i, j, k].DirectionToMove];
                                 switch (direction)
                                 {
@@ -513,6 +544,7 @@ namespace FlowFieldPathfinding
                     } 
                 }
             }
+#endif
         }
     }
 }

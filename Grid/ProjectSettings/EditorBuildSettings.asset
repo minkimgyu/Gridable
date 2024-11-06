@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/NavMesh.unity
     guid: 3cc6fbb8f569e2d46b32cf8682330ed8
+  - enabled: 1
+    path: Assets/Scenes/FlowField.unity
+    guid: 0a8abb34c91e15c4cb479e74ae76546c
   m_configObjects: {}

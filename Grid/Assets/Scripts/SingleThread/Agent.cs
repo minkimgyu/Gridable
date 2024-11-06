@@ -78,6 +78,7 @@ namespace SingleThreadPathfinding
 
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             Gizmos.color = Color.yellow;
             Gizmos.DrawCube(_endPos, Vector3.one);
 
@@ -88,6 +89,7 @@ namespace SingleThreadPathfinding
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(_path[i - 1], _path[i]);
             }
+#endif
         }
     }
 }

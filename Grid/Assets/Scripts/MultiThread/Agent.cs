@@ -101,6 +101,7 @@ namespace MultiThreadPathfinding
 
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             Gizmos.color = Color.yellow;
             Gizmos.DrawCube(_endPos, Vector3.one);
 
@@ -111,6 +112,7 @@ namespace MultiThreadPathfinding
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(_pathResult.path[i - 1], _pathResult.path[i]);
             }
+#endif
         }
     }
 }

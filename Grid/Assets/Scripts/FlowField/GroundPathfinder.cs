@@ -25,9 +25,11 @@ namespace FlowFieldPathfinding
             _visited = new HashSet<Node>();
         }
 
-        public void FindPath(Vector3Int index)
+        public void FindPath(Vector3 pos)
         {
             _gridComponent.ResetNodeWeight();
+
+            Vector3Int index = _gridComponent.ReturnNodeIndex(pos);
             Node startNode = _gridComponent.ReturnNode(index);
             startNode.PathWeight = 0;
 
