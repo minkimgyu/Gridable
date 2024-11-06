@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-namespace SingleThreadPathfinding
+namespace FlowFieldPathfinding
 {
     public class GridComponent : MonoBehaviour
     {
@@ -34,11 +35,65 @@ namespace SingleThreadPathfinding
         [SerializeField] bool _showBlockNode;
         [SerializeField] bool _showSurface;
         [SerializeField] bool _showNavigationRect;
+        [SerializeField] ShowType _showType;
+
+        public enum Direction
+        {
+            UpLeft,
+            Up,
+            UpRight,
+            Left,
+            Current,
+            Right,
+            DownLeft,
+            Down,
+            DownRight
+        }
+
+        public Dictionary<Vector3, Direction> directions = new Dictionary<Vector3, Direction>()
+        {
+            { new Vector3(-1, 0, 1).normalized, Direction.UpLeft },
+            { new Vector3(0, 0, 1), Direction.Up },
+            { new Vector3(1, 0, 1).normalized, Direction.UpRight },
+
+            { new Vector3(-1, 0), Direction.Left },
+            { new Vector3(0, 0), Direction.Current },
+            { new Vector3(1, 0), Direction.Right },
+
+            { new Vector3(-1, -1).normalized, Direction.DownLeft },
+            { new Vector3(0, -1), Direction.Down },
+            { new Vector3(1, -1).normalized, Direction.DownRight },
+        };
+
+        public enum ShowType
+        {
+            Block,
+            Weight,
+            Direction
+        }
 
         Node[,,] _grid;
 
         public void Initialize()
         {
+            _showType = ShowType.Direction;
+
+            blockStyle.fontSize = 20;
+            blockStyle.alignment = TextAnchor.MiddleCenter;
+            blockStyle.normal.textColor = Color.red;
+
+            emptyStyle.fontSize = 20;
+            emptyStyle.alignment = TextAnchor.MiddleCenter;
+            emptyStyle.normal.textColor = Color.blue;
+
+            weightStyle.fontSize = 5;
+            weightStyle.alignment = TextAnchor.MiddleCenter;
+            weightStyle.normal.textColor = Color.white;
+
+            startPointStyle.fontSize = 20;
+            startPointStyle.alignment = TextAnchor.MiddleCenter;
+            startPointStyle.normal.textColor = Color.white;
+
             _gridGenerator = GetComponent<GridGenerator>();
             _groundPathfinder = GetComponent<GroundPathfinder>();
 
@@ -50,12 +105,68 @@ namespace SingleThreadPathfinding
                     for (int z = 0; z < _sizeOfGrid.z; z++)
                     {
                         _grid[x, y, z].NearNodesInGround = ReturnNearNodesInGround(new Vector3Int(x, y, z));
-                        _grid[x, y, z].NearNodes = ReturnNearNodes(new Vector3Int(x, y, z));
+                        //_grid[x, y, z].NearNodes = ReturnNearNodes(new Vector3Int(x, y, z));
                     }
                 }
             }
 
             _groundPathfinder.Initialize(this);
+        }
+
+        public Vector2 ReturnNodeDirection(Vector3 worldPos)
+        {
+            Vector3Int index = ReturnNodeIndex(worldPos);
+            Node node = ReturnNode(index);
+            return node.DirectionToMove;
+        }
+
+        public void CalculateNodePath(Node startNode)
+        {
+            for (int i = 0; i < _sizeOfGrid.x; i++)
+            {
+                for (int j = 0; j < _sizeOfGrid.y; j++)
+                {
+                    for (int k = 0; k < _sizeOfGrid.y; k++)
+                    {
+                        if (startNode == _grid[i, j, k])
+                        {
+                            startNode.DirectionToMove = Vector2.zero;
+                            continue;
+                        }
+
+                        Vector2 direction;
+                        List<Node> nearNodes = _grid[i, j, k].NearNodes;
+                        float minWeight = float.MaxValue;
+                        int minIndex = 0;
+
+                        for (int z = 0; z < nearNodes.Count; z++)
+                        {
+                            if (nearNodes[k].PathWeight < minWeight)
+                            {
+                                minWeight = nearNodes[k].PathWeight;
+                                minIndex = k;
+                            }
+                        }
+
+                        direction = (nearNodes[minIndex].Pos - _grid[i, j, k].Pos).normalized;
+                        _grid[i, j, k].DirectionToMove = direction;
+                    }
+                }
+            }
+        }
+
+        public void ResetNodeWeight()
+        {
+            for (int i = 0; i < _sizeOfGrid.x; i++)
+            {
+                for (int j = 0; j < _sizeOfGrid.y; j++)
+                {
+                    for (int k = 0; k < _sizeOfGrid.z; k++)
+                    {
+                        _grid[i, j, k].PathWeight = float.MaxValue;
+                    }
+                }
+            }
         }
 
         public List<Node> ReturnNearNodesInGround(Vector3Int index)
@@ -172,36 +283,36 @@ namespace SingleThreadPathfinding
             return nearNodes;
         }
 
-        public List<Node> ReturnNearNodes(Vector3Int index)
-        {
-            List<Node> nearNodes = new List<Node>();
+        //public List<Node> ReturnNearNodes(Vector3Int index)
+        //{
+        //    List<Node> nearNodes = new List<Node>();
 
-            // 주변 그리드
-            List<Vector3Int> closeIndex = new List<Vector3Int> {
-            new Vector3Int(index.x - 1, index.y - 1, index.z + 1), new Vector3Int(index.x, index.y - 1, index.z + 1), new Vector3Int(index.x + 1, index.y - 1, index.z + 1),
-            new Vector3Int(index.x - 1, index.y - 1, index.z), new Vector3Int(index.x, index.y - 1, index.z), new Vector3Int(index.x + 1, index.y - 1, index.z),
-            new Vector3Int(index.x - 1, index.y - 1, index.z - 1), new Vector3Int(index.x, index.y - 1, index.z - 1), new Vector3Int(index.x + 1, index.y - 1, index.z - 1),
+        //    // 주변 그리드
+        //    List<Vector3Int> closeIndex = new List<Vector3Int> {
+        //    new Vector3Int(index.x - 1, index.y - 1, index.z + 1), new Vector3Int(index.x, index.y - 1, index.z + 1), new Vector3Int(index.x + 1, index.y - 1, index.z + 1),
+        //    new Vector3Int(index.x - 1, index.y - 1, index.z), new Vector3Int(index.x, index.y - 1, index.z), new Vector3Int(index.x + 1, index.y - 1, index.z),
+        //    new Vector3Int(index.x - 1, index.y - 1, index.z - 1), new Vector3Int(index.x, index.y - 1, index.z - 1), new Vector3Int(index.x + 1, index.y - 1, index.z - 1),
 
-            new Vector3Int(index.x - 1, index.y, index.z + 1), new Vector3Int(index.x, index.y, index.z + 1), new Vector3Int(index.x + 1, index.y, index.z + 1),
-            new Vector3Int(index.x - 1, index.y, index.z), new Vector3Int(index.x + 1, index.y, index.z),
-            new Vector3Int(index.x - 1, index.y, index.z - 1), new Vector3Int(index.x, index.y, index.z - 1), new Vector3Int(index.x + 1, index.y, index.z - 1),
+        //    new Vector3Int(index.x - 1, index.y, index.z + 1), new Vector3Int(index.x, index.y, index.z + 1), new Vector3Int(index.x + 1, index.y, index.z + 1),
+        //    new Vector3Int(index.x - 1, index.y, index.z), new Vector3Int(index.x + 1, index.y, index.z),
+        //    new Vector3Int(index.x - 1, index.y, index.z - 1), new Vector3Int(index.x, index.y, index.z - 1), new Vector3Int(index.x + 1, index.y, index.z - 1),
 
-            new Vector3Int(index.x - 1, index.y + 1, index.z + 1), new Vector3Int(index.x, index.y + 1, index.z + 1), new Vector3Int(index.x + 1, index.y + 1, index.z + 1),
-            new Vector3Int(index.x - 1, index.y + 1, index.z), new Vector3Int(index.x, index.y + 1, index.z), new Vector3Int(index.x + 1, index.y + 1, index.z),
-            new Vector3Int(index.x - 1, index.y + 1, index.z - 1), new Vector3Int(index.x, index.y + 1, index.z - 1), new Vector3Int(index.x + 1, index.y + 1, index.z - 1)
-        };
+        //    new Vector3Int(index.x - 1, index.y + 1, index.z + 1), new Vector3Int(index.x, index.y + 1, index.z + 1), new Vector3Int(index.x + 1, index.y + 1, index.z + 1),
+        //    new Vector3Int(index.x - 1, index.y + 1, index.z), new Vector3Int(index.x, index.y + 1, index.z), new Vector3Int(index.x + 1, index.y + 1, index.z),
+        //    new Vector3Int(index.x - 1, index.y + 1, index.z - 1), new Vector3Int(index.x, index.y + 1, index.z - 1), new Vector3Int(index.x + 1, index.y + 1, index.z - 1)
+        //};
 
-            for (int i = 0; i < closeIndex.Count; i++)
-            {
-                bool isOutOfRange = IsOutOfRange(closeIndex[i]);
-                if (isOutOfRange == true) continue;
+        //    for (int i = 0; i < closeIndex.Count; i++)
+        //    {
+        //        bool isOutOfRange = IsOutOfRange(closeIndex[i]);
+        //        if (isOutOfRange == true) continue;
 
-                Node node = ReturnNode(closeIndex[i]);
-                nearNodes.Add(node);
-            }
+        //        Node node = ReturnNode(closeIndex[i]);
+        //        nearNodes.Add(node);
+        //    }
 
-            return nearNodes;
-        }
+        //    return nearNodes;
+        //}
 
         bool IsOutOfRange(Vector3Int index)
         {
@@ -311,9 +422,97 @@ namespace SingleThreadPathfinding
             }
         }
 
+        // 스타일 지정
+        GUIStyle blockStyle = new GUIStyle();
+        GUIStyle emptyStyle = new GUIStyle();
+        GUIStyle weightStyle = new GUIStyle();
+
+        GUIStyle startPointStyle = new GUIStyle();
+
         private void OnDrawGizmos()
         {
             DrawGrid();
+
+            for (int i = 0; i < _sizeOfGrid.x; i++)
+            {
+                for (int j = 0; j < _sizeOfGrid.y; j++)
+                {
+                    for (int k = 0; k < _sizeOfGrid.z; k++)
+                    {
+                        if (_showType == ShowType.Direction)
+                        {
+                            if (_grid[i, j, k].CanStep == false)
+                            {
+                                Handles.Label(_grid[i, j, k].Pos, "X", blockStyle);
+                            }
+                            else
+                            {
+                                Direction direction = directions[_grid[i, j, k].DirectionToMove];
+                                switch (direction)
+                                {
+                                    case Direction.UpLeft:
+                                        Handles.Label(_grid[i, j, k].Pos, "↖", emptyStyle);
+                                        break;
+                                    case Direction.Up:
+                                        Handles.Label(_grid[i, j, k].Pos, "↑", emptyStyle);
+                                        break;
+                                    case Direction.UpRight:
+                                        Handles.Label(_grid[i, j, k].Pos, "↗", emptyStyle);
+                                        break;
+                                    case Direction.Left:
+                                        Handles.Label(_grid[i, j, k].Pos, "←", emptyStyle);
+                                        break;
+                                    case Direction.Current:
+                                        Handles.Label(_grid[i, j, k].Pos, "○", startPointStyle);
+                                        break;
+                                    case Direction.Right:
+                                        Handles.Label(_grid[i, j, k].Pos, "→", emptyStyle);
+                                        break;
+                                    case Direction.DownLeft:
+                                        Handles.Label(_grid[i, j, k].Pos, "↙", emptyStyle);
+                                        break;
+                                    case Direction.Down:
+                                        Handles.Label(_grid[i, j, k].Pos, "↓", emptyStyle);
+                                        break;
+                                    case Direction.DownRight:
+                                        Handles.Label(_grid[i, j, k].Pos, "↘", emptyStyle);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        else if (_showType == ShowType.Block)
+                        {
+                            switch (_grid[i, j, k].CurrentState)
+                            {
+                                case Node.State.Empty:
+                                    Handles.Label(_grid[i, j, k].Pos, "○", emptyStyle);
+                                    break;
+                                case Node.State.Block:
+                                    Handles.Label(_grid[i, j, k].Pos, "X", blockStyle);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        else if (_showType == ShowType.Weight)
+                        {
+                            switch (_grid[i, j, k].CurrentState)
+                            {
+                                case Node.State.Empty:
+                                    Handles.Label(_grid[i, j, k].Pos, _grid[i, j, k].PathWeight.ToString(), emptyStyle);
+                                    break;
+                                case Node.State.Block:
+                                    Handles.Label(_grid[i, j, k].Pos, _grid[i, j, k].PathWeight.ToString(), blockStyle);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    } 
+                }
+            }
         }
     }
 }

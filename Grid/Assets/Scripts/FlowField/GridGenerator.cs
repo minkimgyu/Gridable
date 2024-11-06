@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MultiThreadPathfinding
+namespace FlowFieldPathfinding
 {
     public class GridGenerator : MonoBehaviour
     {
@@ -12,14 +12,12 @@ namespace MultiThreadPathfinding
             Vector3 halfSize = new Vector3(nodeSize / 2, nodeSize / 2, nodeSize / 2); // halfExtents
 
             // 1. 콜라이더를 검출해서 Non-Pass, Block, Empty를 나눠준다.
-
             for (int x = 0; x < sizeOfGrid.x; x++)
             {
                 for (int z = 0; z < sizeOfGrid.z; z++)
                 {
                     for (int y = 0; y < sizeOfGrid.y; y++)
                     {
-                        Vector3Int index = new Vector3Int(x, y, z);
                         Vector3 originPos = transform.position + halfSize; // pivot을 왼쪽 아래로 위치시킨다.
                         Vector3 pos = originPos + new Vector3(x, y, z) * nodeSize;
 
@@ -27,7 +25,7 @@ namespace MultiThreadPathfinding
                         Collider[] nonPassCollider = Physics.OverlapBox(pos, halfSize, Quaternion.identity, nonPassLayer);
                         if (nonPassCollider.Length > 0)
                         {
-                            Node nonPassNode = new Node(pos, index, Node.State.NonPass);
+                            Node nonPassNode = new Node(pos, Node.State.NonPass);
                             grid[x, y, z] = nonPassNode;
                             continue;
                         }
@@ -35,12 +33,12 @@ namespace MultiThreadPathfinding
                         Collider[] obstacleCollider = Physics.OverlapBox(pos, halfSize, Quaternion.identity, obstacleLayer);
                         if (obstacleCollider.Length > 0)
                         {
-                            Node bloackNode = new Node(pos, index, Node.State.Block);
+                            Node bloackNode = new Node(pos, Node.State.Block);
                             grid[x, y, z] = bloackNode;
                             continue;
                         }
 
-                        Node emptyNode = new Node(pos, index,Node.State.Empty);
+                        Node emptyNode = new Node(pos, Node.State.Empty);
                         grid[x, y, z] = emptyNode;
                     }
                 }
@@ -74,7 +72,7 @@ namespace MultiThreadPathfinding
                         //// 현재 칸은 Empty이고 바로 아래 칸은 Block인 경우 Raycast를 발사해서 Surface를 체크해준다.
                         //if (grid[x, y, z].CurrentState == Node.State.Empty && grid[x, y - 1, z].CurrentState == Node.State.Block)
                         //{
-
+                            
                         //}
                     }
                 }
@@ -96,19 +94,19 @@ namespace MultiThreadPathfinding
 
             // 시작이 1이면
             // 중간 노드는 2, 3이다.
-
+            
             // 적절한 높이인지 구하기
             bool isAppropriateHeight = y + agentHeight < sizeOfGrid.y;
-            if (isAppropriateHeight == false) return false;
+            if(isAppropriateHeight == false) return false;
 
             // 현재 노드가 Block노드인지 확인하기
             bool isBlockNode = grid[x, y, z].CurrentState == Node.State.Block;
-            if (isBlockNode == false) return false;
+            if(isBlockNode == false) return false;
 
             bool isEmpty = true;
             for (int i = y + 1; i <= y + agentHeight; i++)
             {
-                if (grid[x, i, z].CurrentState != Node.State.Empty)
+                if(grid[x, i, z].CurrentState != Node.State.Empty)
                 {
                     isEmpty = false;
                     break;
@@ -118,4 +116,5 @@ namespace MultiThreadPathfinding
             return isEmpty;
         }
     }
+
 }

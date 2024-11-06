@@ -8,6 +8,7 @@ namespace MultiThreadPathfinding
     {
         GridGenerator _gridGenerator;
 
+        [SerializeField] int _agentHeight = 1;
         [SerializeField] float _nodeSize = 0.5f;
         [SerializeField] Vector3Int _sizeOfGrid;
         [SerializeField] LayerMask _blockMask;
@@ -35,7 +36,7 @@ namespace MultiThreadPathfinding
         public void Initialize()
         {
             _gridGenerator = GetComponent<GridGenerator>();
-            _grid = _gridGenerator.CreateGrid(_nodeSize, _sizeOfGrid, _blockMask, _nonPassMask);
+            _grid = _gridGenerator.CreateGrid(_agentHeight, _nodeSize, _sizeOfGrid, _blockMask, _nonPassMask);
 
             _closeNodes = new List<Node>[_sizeOfGrid.x, _sizeOfGrid.y, _sizeOfGrid.z];
             for (int x = 0; x < _sizeOfGrid.x; x++)

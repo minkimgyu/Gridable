@@ -1553,7 +1553,6 @@ MonoBehaviour:
   - {fileID: 1420561600}
   - {fileID: 134719870}
   _gridComponent: {fileID: 450304994}
-  _pathRequestManager: {fileID: 450304992}
   _exitBtn: {fileID: 876370683}
   _spawnCountTxt: {fileID: 1264381354}
 --- !u!1001 &285875611
@@ -2236,7 +2235,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 450304990}
-  - component: {fileID: 450304992}
   - component: {fileID: 450304994}
   - component: {fileID: 450304993}
   m_Layer: 0
@@ -2261,19 +2259,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &450304992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 450304988}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 420fcf75c3c6d8a49b485b285db6b743, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxThreadCount: 21
 --- !u!114 &450304993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2298,8 +2283,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84d918839de2ada40bcdbc74473f8ed0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _agentHeight: 2
   _nodeSize: 1
-  _sizeOfGrid: {x: 48, y: 7, z: 48}
+  _sizeOfGrid: {x: 48, y: 9, z: 48}
   _blockMask:
     serializedVersion: 2
     m_Bits: 64
