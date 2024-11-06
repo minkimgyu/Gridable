@@ -28,18 +28,23 @@ namespace FlowFieldPathfinding
             _spawnCountTxt.text = $"{spawnCount} Count";
 
             _gridComponent.Initialize();
-            _pathfinder.FindPath(_endPoints[0].position);
+            _pathfinder.FindPath(_endPoints);
 
             for (int i = 0; i < spawnCount; i++)
             {
                 Agent agent = Instantiate(_agentPrefab);
-                agent.Initialize(_gridComponent, _endPoints[0].position, ReturnRandomStartPos);
+                agent.Initialize(_gridComponent, ReturnRandomStartPos, ReturnRandomEndPos);
             }
         }
 
         Vector3 ReturnRandomStartPos()
         {
             return _startPoints[Random.Range(0, _startPoints.Length)].position;
+        }
+
+        Vector3 ReturnRandomEndPos()
+        {
+            return _endPoints[Random.Range(0, _endPoints.Length)].position;
         }
     }
 }

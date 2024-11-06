@@ -15,7 +15,7 @@ namespace FlowFieldPathfinding
 
         public Vector3 ReturnDirection()
         {
-            return _gridComponent.ReturnNodeDirection(transform.position);
+            return _gridComponent.ReturnNodeDirection(transform.position).normalized;
         }
     }
 }

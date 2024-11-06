@@ -171,7 +171,7 @@ namespace FlowFieldPathfinding
                             }
                         }
 
-                        Vector3 direction = (nearNodes[minIndex].Pos - _grid[i, j, k].Pos).normalized;
+                        Vector3 direction = nearNodes[minIndex].Pos - _grid[i, j, k].Pos;
                         _grid[i, j, k].DirectionToMove = direction;
                     }
                 }

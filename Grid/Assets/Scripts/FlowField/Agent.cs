@@ -8,18 +8,18 @@ namespace FlowFieldPathfinding
     public class Agent : MonoBehaviour
     {
         PathSeeker _pathSeeker;
-
-        const float _endDistance = 3f;
         float _moveSpeed = 5f;
 
         Vector3 _endPos;
 
         Func<Vector3> ReturnRandomStartPos;
+        Func<Vector3> ReturnRandomEndPos;
 
-        public void Initialize(GridComponent gridComponent, Vector3 endPos, Func<Vector3> ReturnRandomStartPos)
+        public void Initialize(GridComponent gridComponent, Func<Vector3> ReturnRandomStartPos, Func<Vector3> ReturnRandomEndPos)
         {
             //this.FindPath = FindPath;
             this.ReturnRandomStartPos = ReturnRandomStartPos;
+            this.ReturnRandomEndPos = ReturnRandomEndPos;
 
             _pathSeeker = GetComponent<PathSeeker>();
             _pathSeeker.Initialize(gridComponent);
@@ -27,13 +27,21 @@ namespace FlowFieldPathfinding
             Vector3 randomPos = ReturnRandomStartPos();
             TeleportTo(randomPos);
 
-            _endPos = endPos;
-
             FinishPath();
         }
-        void FinishPath()
+
+        public void FinishPath()
         {
             Vector3 randomPos = ReturnRandomStartPos();
+            Vector3 endPos;
+
+            do
+            {
+                endPos = ReturnRandomEndPos();
+            }
+            while (endPos == _endPos);
+
+            _endPos = endPos;
             TeleportTo(randomPos);
         }
 
@@ -44,11 +52,6 @@ namespace FlowFieldPathfinding
 
         private void Update()
         {
-            if (Vector3.Distance(transform.position, _endPos) <= _endDistance)
-            {
-                FinishPath();
-            }
-
             Vector3 direction = _pathSeeker.ReturnDirection();
             transform.Translate(direction * _moveSpeed * Time.deltaTime);
         }

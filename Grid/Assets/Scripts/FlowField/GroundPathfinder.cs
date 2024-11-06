@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace FlowFieldPathfinding
 {
@@ -25,15 +26,26 @@ namespace FlowFieldPathfinding
             _visited = new HashSet<Node>();
         }
 
-        public void FindPath(Vector3 pos)
+        public void FindPath(Transform[] points)
         {
             _gridComponent.ResetNodeWeight();
+            Vector3Int index;
+            Node startNode = null;
 
-            Vector3Int index = _gridComponent.ReturnNodeIndex(pos);
-            Node startNode = _gridComponent.ReturnNode(index);
+            for (int i = 0; i < points.Length; i++)
+            {
+                index = _gridComponent.ReturnNodeIndex(points[i].position);
+                startNode = _gridComponent.ReturnNode(index);
+                startNode.PathWeight = 0;
+
+                _heap.Insert(startNode); // 시작 노드 삽입
+                _visited.Add(startNode); // 방문 처리
+            }
+
+            index = _gridComponent.ReturnNodeIndex(points[0].position);
+            startNode = _gridComponent.ReturnNode(index);
             startNode.PathWeight = 0;
 
-            _heap.Insert(startNode); // 시작 노드 삽입
             _visited.Add(startNode); // 방문 처리
 
             while (_heap.Count > 0)
